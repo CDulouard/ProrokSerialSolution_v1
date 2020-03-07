@@ -1,6 +1,6 @@
 # ProrokSerialSolution_v1
 
-This project provide a basic serial communication solution to use in Prorok's projects. The actual version of the project contains a script for Arduino and a basic Python software to manage the communication between the Arduino and the device the Python software is running on.
+This project provide a basic serial communication solution to use in Prorok's projects. The current version of the project contains a script for Arduino and a basic Python software to manage the communication between the Arduino and the device the Python software is running on.
 
 ## Getting Started
 
