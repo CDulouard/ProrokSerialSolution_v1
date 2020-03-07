@@ -57,7 +57,7 @@
 # define BAUD_RATE 115200
 # define BUFFER_SIZE 255
 # define SEND_BUFFER_SIZE 255
-# define MAX_RECEIVING_DELAY 100
+# define MAX_RECEIVING_DELAY 1000
 # define WATCHDOG_DELAY WDTO_500MS
 
 # define DEBUG_LED_0 A0
@@ -193,7 +193,8 @@ void check_buffer(){
   if(time_start_rcv != 0){
     if(millis() - time_start_rcv > MAX_RECEIVING_DELAY){
       clear_buffer();
-      time_start_rcv;
+      time_start_rcv = 0;
+      digitalWrite(DEBUG_LED_0, LOW); // DEBUG
     }
   }
   // Start message detection
@@ -205,6 +206,7 @@ void check_buffer(){
     }
     else{
       time_start_rcv = millis();
+      digitalWrite(DEBUG_LED_0, HIGH); // DEBUG
     }
   }
   // Stop message detection
