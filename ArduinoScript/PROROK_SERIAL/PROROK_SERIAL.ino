@@ -110,6 +110,7 @@ void pong(char toSend);
 void ledDebug1();
 void ledDebug2();
 void ledDebug3();
+void sendDebug();
 
 /*================================ ROUTINE ====================================*/
 void setup() {
@@ -150,7 +151,7 @@ void loop() {
 
   // DEBUG
     
-  ledDebug3();
+  //ledDebug3();
   //write_buffer();
 
 }
@@ -266,6 +267,8 @@ void message_handler(){
     case 2:
     // Ask motor data
     set_token(get_token_life_span());
+    sendDebug(); // DEBUG
+    digitalWrite(DEBUG_LED_1, HIGH);
     break;
     case 3:
     // Receive new torques
@@ -379,4 +382,17 @@ void ledDebug3(){
   else{
     digitalWrite(DEBUG_LED_2, LOW);
   }  
+}
+
+void sendDebug(){
+  send_buffer[0] = 255;
+  send_buffer[1] = 255;
+  send_buffer[2] = 255;
+  send_buffer[3] = 1;
+  send_buffer[4] = 0;
+  send_buffer[5] = 254;
+  send_buffer[6] = 254;
+  send_buffer[7] = 254;
+  top_send_buffer = 8;
+  send_message();
 }
