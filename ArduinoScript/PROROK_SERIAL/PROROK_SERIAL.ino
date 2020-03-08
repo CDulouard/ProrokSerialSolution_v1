@@ -1,6 +1,6 @@
 /*
  * ========================================= README =============================================
- * This script can be used to create a simple serial communiction between an Arduino and an other
+ * This script can be used to create a simple serial communication between an Arduino and an other
  * machine.
  * =================================================================
  * Change the constant to make this script working for your own project.
@@ -47,6 +47,8 @@
  * You can write the behaviour you want for the Arduino for each message id in the function 
  * message_handler. Just add a case to the switch case for the id you want to use. Don't forget
  * to add a comment your new case to not forget what it is used for! :)
+ * 
+ * If you find a bug please contact us.
  * ================================================================================================
  */
 
