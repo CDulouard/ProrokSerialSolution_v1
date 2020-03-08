@@ -1,6 +1,30 @@
+"""
+=================================== README ===================================
+This script can be used to create a simple serial communication between an Arduino
+and an other machine.
+=============================================================
+Just create a new SerialTools object and use the functions send_message,
+listen_message and get_message, you DO NOT need to use others function excepted if you know
+what you are doing.
+=============================================================
+Example :
+
+from SerialTools import SerialTools
+
+com = SerialTools("COM4", 115200)
+print(com.send_message(2, [], 500))
+com.listen_message()
+print(com.get_message())
+=============================================================
+Please do not modify internal states of an instantiated class.
+Do not use id 0, it is used to specified there is no message.
+If you find a bug please contact us.
+==============================================================================
+"""
+
 import serial
 import time
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 current_milli_time = lambda: int(round(time.time() * 1000))
 
@@ -47,6 +71,10 @@ class SerialTools:
         # Buffers
         self.rcv_buffer: list = []
         self.send_buffer: list = []
+
+        # Messages
+        self.message: list = []
+        self.message_id: int = 0
 
         # Serial com
         self.com = creat_serial_com(port, baud, timeout)
@@ -100,7 +128,28 @@ class SerialTools:
             if self.com.in_waiting != 0:
                 self.rcv_buffer += [int.from_bytes(self.com.read(), byteorder='big')]
             self.check_token()
-        print(self.rcv_buffer)  # Debug
+
+    def listen_message(self) -> None:
+        """
+        This method use the method listen (see listen() for more details) the read self.rcv_buffer to detect if the
+        received message has the correct format to be understood by the program.
+        Ex : 255 255 255 id ... 254 254 254
+        The id of the message is stored in sef.message_id and the content of the message is stored in self.message.
+        """
+        self.listen()
+        if len(self.rcv_buffer) > 0:
+            temp = []
+            for c in self.rcv_buffer:
+                temp += [c]
+                if len(temp) == 3:
+                    if temp[0] != 255 or temp[1] != 255 or temp[2] != 255:
+                        temp = [temp[1], temp[2]]
+                elif len(temp) >= 6:
+                    if temp[-1] == 254 and temp[-2] == 254 and temp[-3] == 254:
+                        self.message = temp[4:-3]
+                        self.message_id = temp[3]
+                        break
+            self.rcv_buffer = []
 
     def send_message(self, msg_id: int, message: List[int], token_duration=0) -> bool:
         """
@@ -151,3 +200,16 @@ class SerialTools:
         The list to put in self.send_buffer.
         """
         self.send_buffer = message
+
+    def get_message(self) -> Tuple[int, List[int]]:
+        """
+        This method returns message id and message content in a tuple the clear both attributes.
+        :return:
+        (0, []) if there is no message else (self.message_id, self.message)
+        """
+        if self.message_id == 0:
+            return 0, []
+        else:
+            msg_id, msg = self.message_id, self.message
+            self.message_id, self.message = 0, []
+            return msg_id, msg
