@@ -391,7 +391,8 @@ void sendDebug(){
   send_buffer[3] = 1;
   send_buffer[4] = 0;
   send_buffer[5] = 254;
-  send_buffer[5] = 254;
-  send_buffer[5] = 254;
+  send_buffer[6] = 254;
+  send_buffer[7] = 254;
+  top_send_buffer = 8;
   send_message();
 }
