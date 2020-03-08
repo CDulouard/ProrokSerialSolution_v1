@@ -62,9 +62,6 @@
 # define MAX_RECEIVING_DELAY 1000
 # define WATCHDOG_DELAY WDTO_500MS
 
-# define DEBUG_LED_0 A0
-# define DEBUG_LED_1 A1
-# define DEBUG_LED_2 A2
 
 // Global variables
 unsigned char serial_buffer[BUFFER_SIZE];
@@ -105,58 +102,21 @@ unsigned int get_token_life_span();
 
 void refresh_wdt(int wdt_delay);
 
-// DEBUG FUNCTIONS
-
-void write_buffer();
-void pong(char toSend);
-void ledDebug1();
-void ledDebug2();
-void ledDebug3();
-void sendDebug();
 
 /*================================ ROUTINE ====================================*/
 void setup() {
-  Serial.begin(BAUD_RATE);
-
-  // DEBUG
-  //Serial.write("RESTART\n");
-  
-  pinMode(DEBUG_LED_0, OUTPUT);
-  pinMode(DEBUG_LED_1, OUTPUT);
-  pinMode(DEBUG_LED_2, OUTPUT);
-
-  digitalWrite(DEBUG_LED_0, HIGH);
-  delay(1000);
-  digitalWrite(DEBUG_LED_0, LOW);
-  
-  /*
-  String message = "coucou";
-  for(int i = 0; i < 6; i++){
-      add_to_buffer(message[i]);
-   }
-  */
+  Serial.begin(BAUD_RATE); 
 }
 
 void loop() {
-  // DEBUG
-
-
-
-  //===============================
   refresh_wdt(WATCHDOG_DELAY); // Write here the maximum time for a loop.
   read_buffer(); // If there are bytes in the buffer, put the first one in the serial_buffer variable.
   check_buffer(); // Manage the reception of the messages.
   read_message(); // Stores the message information in message_id and message.
   message_handler(); // If a new message is receive do the job according to the message id.
   token_manager(); // Destroy communication token if times out to avoid serial communication collisions. 
-  //===============================
-
-  // DEBUG
-    
-  //ledDebug3();
-  //write_buffer();
-
 }
+
 
 /*================================ SERIAL COMMUNICATION FUNCTIONS ====================================*/
 
@@ -166,7 +126,6 @@ void read_buffer(){
   if(Serial.available()){
     add_to_buffer(Serial.read());
   }
-  
 }
 
 
@@ -182,14 +141,13 @@ void add_to_buffer(char char_to_add){
   if(top_buffer < BUFFER_SIZE){
     serial_buffer[top_buffer] = char_to_add;
     top_buffer += 1;
-    ledDebug1(); //DEBUG
   }
   else{
     clear_buffer();
     add_to_buffer(char_to_add);
-    digitalWrite(DEBUG_LED_2, HIGH); //DEBUG
   }    
 }
+
 
 void check_buffer(){
   // Manage the reception of the messages
@@ -197,7 +155,6 @@ void check_buffer(){
     if(millis() - time_start_rcv > MAX_RECEIVING_DELAY){
       clear_buffer();
       time_start_rcv = 0;
-      digitalWrite(DEBUG_LED_0, LOW); // DEBUG
     }
   }
   // Start message detection
@@ -209,7 +166,6 @@ void check_buffer(){
     }
     else{
       time_start_rcv = millis();
-      digitalWrite(DEBUG_LED_0, HIGH); // DEBUG
     }
   }
   // Stop message detection
@@ -231,7 +187,7 @@ void read_message(){
     top_message = top_buffer - 7;
     new_message = false;
     clear_buffer();
-    }
+  }
 }
 
 
@@ -252,6 +208,7 @@ bool send_message(){
   }
 }
 
+
 void clear_send_buffer(){
   // Clear the send buffer
   top_send_buffer = 0;
@@ -269,8 +226,6 @@ void message_handler(){
     case 2:
     // Ask motor data
     set_token(get_token_life_span());
-    sendDebug(); // DEBUG
-    digitalWrite(DEBUG_LED_1, HIGH);
     break;
     case 3:
     // Receive new torques
@@ -341,60 +296,4 @@ void refresh_wdt(int wdt_delay){
 8S                             WDTO_8S
   */
   wdt_enable(wdt_delay);
-}
-
-
-
-
-/*================================ DEBUG FUNCTIONS ====================================*/
-void write_buffer(){
-  for(int i = 0; i < top_buffer; i++){
-    Serial.write(serial_buffer[i]);
-  }
-  Serial.write("\n");
-}
-
-void pong(char toSend){
-  Serial.write(toSend);
-}
-
-void ledDebug1(){
-  if (serial_buffer[top_buffer - 1] == '0'){
-    digitalWrite(DEBUG_LED_1, HIGH);
-  }
-  else{
-    digitalWrite(DEBUG_LED_1, LOW);
-  }
-  
-}
-
-void ledDebug2(){
-  if (top_message != 0){
-    digitalWrite(DEBUG_LED_2, HIGH);
-  }
-  else{
-    digitalWrite(DEBUG_LED_2, LOW);
-  }  
-}
-
-void ledDebug3(){
-  if (has_token){
-    digitalWrite(DEBUG_LED_2, HIGH);
-  }
-  else{
-    digitalWrite(DEBUG_LED_2, LOW);
-  }  
-}
-
-void sendDebug(){
-  send_buffer[0] = 255;
-  send_buffer[1] = 255;
-  send_buffer[2] = 255;
-  send_buffer[3] = 1;
-  send_buffer[4] = 0;
-  send_buffer[5] = 254;
-  send_buffer[6] = 254;
-  send_buffer[7] = 254;
-  top_send_buffer = 8;
-  send_message();
 }
