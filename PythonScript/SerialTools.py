@@ -127,6 +127,9 @@ class SerialTools:
         while not self.has_token or self.com.in_waiting != 0:
             if self.com.in_waiting != 0:
                 self.rcv_buffer += [int.from_bytes(self.com.read(), byteorder='big')]
+                if len(self.rcv_buffer) >= 3:
+                    if self.rcv_buffer[-1] == 254 and self.rcv_buffer[-2] == 254 and self.rcv_buffer[-3] == 254:
+                        self.has_token = True
             self.check_token()
 
     def listen_message(self) -> None:
@@ -140,6 +143,7 @@ class SerialTools:
         if len(self.rcv_buffer) > 0:
             temp = []
             for c in self.rcv_buffer:
+                # print(temp)
                 temp += [c]
                 if len(temp) == 3:
                     if temp[0] != 255 or temp[1] != 255 or temp[2] != 255:
