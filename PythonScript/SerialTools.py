@@ -148,6 +148,7 @@ class SerialTools:
                     if temp[-1] == 254 and temp[-2] == 254 and temp[-3] == 254:
                         self.message = temp[4:-3]
                         self.message_id = temp[3]
+                        self.has_token = True
                         break
             self.rcv_buffer = []
 
