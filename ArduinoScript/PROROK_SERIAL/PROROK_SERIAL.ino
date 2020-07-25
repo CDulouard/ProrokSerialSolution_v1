@@ -46,7 +46,7 @@
  * 
  * You can write the behaviour you want for the Arduino for each message id in the function 
  * message_handler. Just add a case to the switch case for the id you want to use. Don't forget
- * to add a comment your new case to not forget what it is used for! :)
+ * to add a comment to your new case to not forget what it is used for! :)
  * 
  * If you find a bug please contact us.
  * ================================================================================================
@@ -276,7 +276,7 @@ unsigned int get_token_life_span(){
 }
 
 
-/*================================ OTHERS FUNCTIONS ====================================*/
+/*================================ OTHER FUNCTIONS ====================================*/
 
 
 void refresh_wdt(int wdt_delay){
